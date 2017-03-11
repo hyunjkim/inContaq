@@ -64,4 +64,10 @@
         android:scrollbars="vertical"
         android:text="TextView"
         android:textAlignment="center" />
+    <TextView
+        android:id="@+id/freq_word_text"
+        android:text="YOOO"
+        android:layout_above="@id/sms_stats"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 </RelativeLayout>

@@ -164,8 +164,7 @@ public class SmsHelper {
             try {
                 Uri uri = Uri.parse(SMS_URI_ALL);
 
-                String[] projection = new String[]{ID, ADDRESS, PERSON, BODY,
-                        DATE, TYPE};
+                String[] projection = new String[]{ID, ADDRESS, PERSON, BODY, DATE, TYPE};
 
                 Cursor c = context.getApplicationContext().getContentResolver().query(uri,
                         projection, null, null, DATE_DESC);

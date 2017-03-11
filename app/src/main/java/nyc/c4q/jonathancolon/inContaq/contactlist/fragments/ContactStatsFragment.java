@@ -12,6 +12,7 @@ import android.view.animation.BounceInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.db.chart.Tools;
 import com.db.chart.animation.Animation;
@@ -21,11 +22,15 @@ import com.db.chart.view.LineChartView;
 import org.parceler.Parcels;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import nyc.c4q.jonathancolon.inContaq.R;
 import nyc.c4q.jonathancolon.inContaq.contactlist.Contact;
@@ -71,6 +76,7 @@ public class ContactStatsFragment extends Fragment implements AdapterView.OnItem
     private Contact contact;
     private LineChartView lineGraph;
     private Spinner dateSpinner;
+    private TextView frequentWord;
     private ArrayAdapter<CharSequence> spinnerArrayAdapter;
     private ContactNotification mContactNotification;
 
@@ -112,6 +118,7 @@ public class ContactStatsFragment extends Fragment implements AdapterView.OnItem
 
 
         dateSpinner = (Spinner) view.findViewById(R.id.date_spinner);
+        frequentWord = (TextView) view.findViewById(R.id.freq_word_text);
         spinnerArrayAdapter = ArrayAdapter.createFromResource(
                 view.getContext(),
                 R.array.date_spinner_array,
@@ -324,8 +331,39 @@ public class ContactStatsFragment extends Fragment implements AdapterView.OnItem
         }
     }
 
+    //Method used to find the most frequent words used in conversation between user and contact
+    public void Map<Sms, Integer> getWordFrequencies(List<Sms> words) {
+        ArrayList<Sms> lstSms = (ArrayList<Sms>) SmsHelper.getAllSms(getActivity(), contact);
+
+        Map<Sms, Long> map = lstSms.stream()
+                .collect(Collectors.groupingBy(w -> w, Collectors.counting()));
+
+        List<Map.Entry<Sms, Long>> result = map.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .limit(10)
+                .collect(Collectors.toList());
+    }
+
+
+//
+//public static Map<String, Integer> getWordFrequencies(List<Sms> words) {
+//    Map<Sms, Long> counts =
+//            Stream.of(WALKING, WALKING, JOGGING, JOGGING, STANDING)
+//                    .collect(Collectors.groupingBy(s -> s, Collectors.counting()));
+//
+//    long max = Collections.max(counts.values());
+//    List<Sms> result = counts
+//            .entrySet()
+//            .stream()
+//            .filter(e -> e.getValue().longValue() == max)
+//            .map(Entry::getKey)
+//            .collect(Collectors.toList());
+//
+//}
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
         // TODO: 3/8/17 should we send a reminder?
     }
 }
+
+
