@@ -332,17 +332,17 @@ public class ContactStatsFragment extends Fragment implements AdapterView.OnItem
     }
 
     //Method used to find the most frequent words used in conversation between user and contact
-    public void Map<Sms, Integer> getWordFrequencies(List<Sms> words) {
-        ArrayList<Sms> lstSms = (ArrayList<Sms>) SmsHelper.getAllSms(getActivity(), contact);
-
-        Map<Sms, Long> map = lstSms.stream()
-                .collect(Collectors.groupingBy(w -> w, Collectors.counting()));
-
-        List<Map.Entry<Sms, Long>> result = map.entrySet().stream()
-                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-                .limit(10)
-                .collect(Collectors.toList());
-    }
+//    public void Map<Sms, Integer> getWordFrequencies(List<Sms> words) {
+//        ArrayList<Sms> lstSms = (ArrayList<Sms>) SmsHelper.getAllSms(getActivity(), contact);
+//
+//        Map<Sms, Long> map = lstSms.stream()
+//                .collect(Collectors.groupingBy(w -> w, Collectors.counting()));
+//
+//        List<Map.Entry<Sms, Long>> result = map.entrySet().stream()
+//                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+//                .limit(10)
+//                .collect(Collectors.toList());
+//    }
 
 
 //
