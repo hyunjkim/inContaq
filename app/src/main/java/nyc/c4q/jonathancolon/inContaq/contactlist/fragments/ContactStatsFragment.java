@@ -12,12 +12,15 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+//import com.db.chart.view.LineChartView;
+
+//import org.parceler.Parcels;
+
 import com.db.chart.view.LineChartView;
 
 import org.parceler.Parcels;
 
 import java.util.ArrayList;
-<<<<<<< HEAD
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -27,8 +30,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-=======
->>>>>>> 43c9d9bd0df1ba450a0b28e77da1d053789d36f4
 
 import nyc.c4q.jonathancolon.inContaq.R;
 import nyc.c4q.jonathancolon.inContaq.contactlist.Contact;
