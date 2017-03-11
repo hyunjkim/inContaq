@@ -44,19 +44,18 @@ public class ContactSmsFragment extends Fragment implements SmsAdapter.Listener 
 
     private static final int RESULT_LOAD_BACKGROUND_IMG = 2;
     private static final int RESULT_LOAD_CONTACT_IMG = 1;
-    private static TextView contactName;
-    private static ImageView contactImageIV, backgroundImageIV;
-    private static Contact contact;
-    private static ContactSmsFragment inst;
     private final String TAG = "SET TEXT REQUEST: ";
+    private TextView contactName;
+    private ImageView contactImageIV, backgroundImageIV;
+    private Contact contact;
+    private static ContactSmsFragment inst;
     private SmsAdapter adapter;
     private RecyclerView recyclerView;
     private ArrayList<Sms> SmsList;
-    private static ImageView smsSendButton;
-    private static EditText smsEditText;
+    private ImageView smsSendButton;
+    private EditText smsEditText;
 
     public ContactSmsFragment() {
-        //required empty public constructor
     }
 
     public static ContactSmsFragment newInstance() {
@@ -66,13 +65,13 @@ public class ContactSmsFragment extends Fragment implements SmsAdapter.Listener 
         return fragment;
     }
 
+    public static ContactSmsFragment instance() {
+        return inst;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-    }
-
-    public static ContactSmsFragment instance() {
-        return inst;
     }
 
     @Override
@@ -108,6 +107,39 @@ public class ContactSmsFragment extends Fragment implements SmsAdapter.Listener 
         return view;
     }
 
+    synchronized public void sendMessage(View v) {
+
+        String messageNumber = contact.getCellPhoneNumber();
+        String messageText = smsEditText.getText().toString();
+        String sent = "SMS_SENT";
+
+        PendingIntent sentPI = PendingIntent.getBroadcast(getActivity(), 0,
+                new Intent(sent), 0);
+
+
+        getActivity().registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context arg0, Intent arg1) {
+                if (getResultCode() == Activity.RESULT_OK) {
+                    Toast.makeText(v.getContext(), "SMS sent",
+                            Toast.LENGTH_SHORT).show();
+
+                } else {
+                    Toast.makeText(getActivity(), "SMS could not sent",
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+        }, new IntentFilter(sent));
+
+        SmsManager sms = SmsManager.getDefault();
+        sms.sendTextMessage(messageNumber, null, messageText, sentPI, null);
+
+        //todo // FIXME: 3/9/17
+        populateSmsList();
+        refreshRecyclerView();
+        scrollListToBottom();
+    }
+
     private void initViews(View view) {
         contactName = (TextView) view.findViewById(R.id.name);
         contactImageIV = (ImageView) view.findViewById(R.id.contact_img);
@@ -115,6 +147,23 @@ public class ContactSmsFragment extends Fragment implements SmsAdapter.Listener 
         recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
         contactName.setTypeface(Fontometrics.amatic_bold(getActivity()));
 
+        contactImageIV.setOnClickListener(v -> {
+            Intent galleryIntent = new Intent(Intent.ACTION_PICK,
+                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+
+            startActivityForResult(galleryIntent, RESULT_LOAD_CONTACT_IMG);
+        });
+        if (backgroundImageIV != null) {
+            backgroundImageIV.setOnClickListener(v -> {
+                Intent galleryIntent = new Intent(Intent.ACTION_PICK,
+                        android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+
+                startActivityForResult(galleryIntent, RESULT_LOAD_BACKGROUND_IMG);
+            });
+        }
+    }
+
+    private void enableClickListeners() {
         contactImageIV.setOnClickListener(v -> {
             Intent galleryIntent = new Intent(Intent.ACTION_PICK,
                     android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -144,33 +193,31 @@ public class ContactSmsFragment extends Fragment implements SmsAdapter.Listener 
         contactName.setText(nameValue);
     }
 
+    public synchronized void populateSmsList() {
+        SmsList = SmsHelper.getAllSms(getActivity(), contact);
+    }
+
     private void setupRecyclerView(Contact contact) {
+        adapter = (SmsAdapter) recyclerView.getAdapter();
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(new SmsAdapter(this, contact));
     }
 
-
-
     public synchronized void refreshRecyclerView() {
-
-        adapter = (SmsAdapter) recyclerView.getAdapter();
         Collections.sort(SmsList);
         adapter.setData(SmsList);
         Log.d(TAG, "RefreshRV : " + SmsList.size());
         adapter.notifyDataSetChanged();
     }
 
-    public synchronized void populateSmsList() {
-        SmsList = SmsHelper.getAllSms(getActivity(), contact);
-    }
-
     synchronized private void scrollListToBottom() {
         recyclerView.post(() -> recyclerView.scrollToPosition(adapter.getItemCount() - 1));
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
+    synchronized private void showRecyclerView() {
+        Animations anim = new Animations(getActivity());
+        recyclerView.setVisibility(View.VISIBLE);
+        anim.fadeIn(recyclerView);
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -198,71 +245,9 @@ public class ContactSmsFragment extends Fragment implements SmsAdapter.Listener 
                         Toast.LENGTH_LONG).show();
             }
         } catch (Exception e) {
-            Log.e(TAG, "onActivityResult: " + e.toString());
             Toast.makeText(getActivity(), R.string.error_message_general, Toast.LENGTH_LONG)
                     .show();
         }
-    }
-
-    synchronized private void showRecyclerView(){
-        Animations anim = new Animations(getActivity());
-        recyclerView.setVisibility(View.VISIBLE);
-        anim.fadeIn(recyclerView);
-    }
-
-    public void enableClickListeners(){
-        contactImageIV.setOnClickListener(v -> {
-            Intent galleryIntent = new Intent(Intent.ACTION_PICK,
-                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-
-            startActivityForResult(galleryIntent, RESULT_LOAD_CONTACT_IMG);
-        });
-        if (backgroundImageIV != null) {
-            backgroundImageIV.setOnClickListener(v -> {
-                Intent galleryIntent = new Intent(Intent.ACTION_PICK,
-                        android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-
-                startActivityForResult(galleryIntent, RESULT_LOAD_BACKGROUND_IMG);
-            });
-        }
-    }
-
-    //getActivity is the equivalent of getContext in fragements
-    synchronized public void sendMessage(View v) {
-
-//        String _messageNumber=smsEditText.getText().toString();
-        String _messageNumber=contact.getCellPhoneNumber();
-        String messageText = smsEditText.getText().toString();
-        String sent = "SMS_SENT";
-
-        PendingIntent sentPI = PendingIntent.getBroadcast(getActivity(), 0,
-                new Intent(sent), 0);
-
-        //---when the SMS has been sent---
-        getActivity().registerReceiver(new BroadcastReceiver(){
-            @Override
-            public void onReceive(Context arg0, Intent arg1) {
-                if(getResultCode() == Activity.RESULT_OK)
-                {
-                    Toast.makeText(v.getContext(), "SMS sent",
-                            Toast.LENGTH_SHORT).show();
-
-                }
-                else
-                {
-                    Toast.makeText(getActivity(), "SMS could not sent",
-                            Toast.LENGTH_SHORT).show();
-                }
-            }
-        }, new IntentFilter(sent));
-
-        SmsManager sms = SmsManager.getDefault();
-        sms.sendTextMessage(_messageNumber, null, messageText, sentPI, null);
-
-        //todo // FIXME: 3/9/17
-        populateSmsList();
-        refreshRecyclerView();
-        scrollListToBottom();
     }
 
     @Override
