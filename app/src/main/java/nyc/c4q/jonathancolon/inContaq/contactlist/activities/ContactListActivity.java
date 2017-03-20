@@ -21,6 +21,7 @@ import com.facebook.stetho.Stetho;
 
 import org.parceler.Parcels;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -207,6 +208,34 @@ public class ContactListActivity extends AppCompatActivity implements AlertDialo
 //            startService(intent);
 //        }
 //    }
+
+    public static ArrayList<Contact> contactArrayList() {
+        ArrayList<Contact> contactDemoList = new ArrayList<>();
+        Contact mom = new Contact("Mama", "Colon");
+        Contact romeo = new Contact("Romeo", "Santos");
+        Contact ramona = new Contact("Ramona", "Harrison");
+        Contact rob = new Contact("Robert", "Li");
+        Contact john = new Contact("John", "Gomez");
+        Contact erick = new Contact("Erick", "Chang");
+        Contact jose = new Contact("Jose", "Garcia");
+        Contact jorge = new Contact("Jorge", "Reina");
+        Contact david = new Contact("David", "Morant");
+        Contact jj = new Contact("Jonathan", "Johnson");
+
+
+        contactDemoList.add(mom);
+        contactDemoList.add(romeo);
+        contactDemoList.add(ramona);
+        contactDemoList.add(rob);
+        contactDemoList.add(erick);
+        contactDemoList.add(john);
+        contactDemoList.add(jose);
+        contactDemoList.add(jorge);
+        contactDemoList.add(jj);
+        contactDemoList.add(jj);
+
+        return contactDemoList;
+    }
 
     @Override
     public void onResume() {
