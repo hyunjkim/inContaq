@@ -233,6 +233,7 @@ public class ContactListActivity extends AppCompatActivity implements AlertDialo
         contactDemoList.add(jorge);
         contactDemoList.add(jj);
         contactDemoList.add(jj);
+        contactDemoList.add(david);
 
         return contactDemoList;
     }
